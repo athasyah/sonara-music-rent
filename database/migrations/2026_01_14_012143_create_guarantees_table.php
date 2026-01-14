@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('rental_id')->nullable()->constrained();
             $table->string('type');
             $table->string('value')->nullable();
-            $table->enum('type',['held','returned']);
+            $table->enum('status',['held','returned']);
             $table->timestamps();
             $table->softDeletes();
         });
