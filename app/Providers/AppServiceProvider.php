@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Contracts\Interfaces\CategoryInterface;
 use App\Contracts\Interfaces\UserInterface;
+use App\Contracts\Repositories\CategoryRepository;
 use App\Contracts\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
 
     private array $register = [
         UserInterface::class => UserRepository::class,
+        CategoryInterface::class => CategoryRepository::class,
     ];
     public function register(): void
     {

@@ -63,4 +63,32 @@ class AuthController extends Controller
             return Response::Error('Terjadi kesalahan saat pendaftaran', $th->getMessage());
         }
     }
+
+    public function getMe()
+    {
+        try {
+            $user = auth()->user();
+
+            if (!$user) {
+                return Response::Error('User tidak ditemukan', null);
+            }
+
+            $user->role = $user->getRoleNames();
+            $user->token = request()->bearerToken();
+
+            return Response::Ok('Berhasil mendapatkan data user', $user);
+        } catch (\Throwable $th) {
+            return Response::Error('Terjadi kesalahan saat mendapatkan data user', $th->getMessage());
+        }
+    }
+
+    public function logout()
+    {
+        try {
+            auth()->user()?->tokens()?->delete();
+            return Response::Ok('Berhasil logout', null);
+        } catch (\Throwable $th) {
+            return Response::Error('Terjadi kesalahan saat logout: ' . $th->getMessage(), null);
+        }
+    }
 }

@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\Response;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Validation\Validator;
 
 class RegisterRequest extends FormRequest
 {
@@ -54,5 +58,10 @@ class RegisterRequest extends FormRequest
             'image.mimes' => 'File wajib berupa PNG,JPG, dan JPEG',
             'image.max' => 'Maksimal ukuran gambar adalah 2mb'
         ];
+    }
+
+        protected function failedValidation(Validator $validator): JsonResponse
+    {
+        throw new HttpResponseException(Response::Error("Kesalahan dalam validasi", $validator->errors()));
     }
 }

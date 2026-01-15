@@ -8,7 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Validation\Validator;
 
-class LoginRequest extends FormRequest
+class CategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,23 +26,23 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email',
-            'password' => 'required|string',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            
-            'password.required' => 'Kata sandi wajib diisi.',
-            'password.string' => 'Kata sandi harus berupa teks.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.string'   => 'Nama harus berupa teks.',
+            'name.max'      => 'Nama maksimal 255 karakter.',
+
+            'description.string' => 'Deskripsi harus berupa teks.',
         ];
     }
 
-        protected function failedValidation(Validator $validator): JsonResponse
+    protected function failedValidation(Validator $validator): JsonResponse
     {
         throw new HttpResponseException(Response::Error("Kesalahan dalam validasi", $validator->errors()));
     }
