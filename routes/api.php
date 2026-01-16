@@ -3,6 +3,7 @@
 use App\Enums\RoleEnum;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\InstrumentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -17,7 +18,15 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware(['role:' . RoleEnum::ADMIN->value])->group(function () {
-        
+
+        //route Kategori
+        Route::get('category/no-paginate', [CategoryController::class, 'noPaginate'])->name('category-no-paginate');
         Route::resource('category', CategoryController::class);
+
+        //Route Instrument
+        Route::get( 'instrument/no-paginate', [InstrumentController::class, 'noPaginate'])->name('instrument-no-paginate');
+        Route::post('instrument/{id}', [InstrumentController::class, 'update'])->name('instrument-update');
+        Route::resource('instrument', InstrumentController::class);
+
     });
 });

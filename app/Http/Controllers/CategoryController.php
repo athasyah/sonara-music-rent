@@ -8,6 +8,7 @@ use App\Helpers\Response;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -51,11 +52,14 @@ class CategoryController extends Controller
 
         $validate = $request->validated();
 
+        DB::beginTransaction();
         try {
             $category = $this->categoryInterface->store($validate);
 
+            DB::commit();
             return Response::Ok('Berhasil menambahkan data kategori', $category);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return Response::Error('Terjadi kesalahan saat menambahkan data kategori', $th->getMessage());
         }
     }
@@ -68,11 +72,11 @@ class CategoryController extends Controller
         try {
             $data = $this->categoryInterface->show($id);
 
-            if (!$data) return Response::NotFound('Pengguna tidak ditemukan');
+            if (!$data) return Response::NotFound('Kategori tidak ditemukan');
 
-            return Response::Ok('Berhasil mengambil data pengguna', $data);
+            return Response::Ok('Berhasil mengambil data kategori', $data);
         } catch (\Throwable $th) {
-            return Response::Error('Gagal mengambil data pengguna', $th->getMessage());
+            return Response::Error('Gagal mengambil data kategori', $th->getMessage());
         }
     }
 
@@ -90,15 +94,18 @@ class CategoryController extends Controller
     public function update(CategoryRequest $request, string $id)
     {
         $data = $this->categoryInterface->show($id);
-        if (!$data) return Response::NotFound('Pengguna tidak ditemukan');
+        if (!$data) return Response::NotFound('Kategori tidak ditemukan');
 
         $validate = $request->validated();
 
+        DB::beginTransaction();
         try {
             $update = $this->categoryInterface->update($id, $validate);
 
+            DB::commit();
             return Response::Ok('Berhasil mengubah data kategori', $update);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return Response::Error('Gagal mengubah data kategori', $th->getMessage());
         }
     }
@@ -109,14 +116,30 @@ class CategoryController extends Controller
     public function destroy(string $id)
     {
         $data = $this->categoryInterface->show($id);
-        if (!$data) return Response::NotFound('Pengguna tidak ditemukan');
+        if (!$data) return Response::NotFound('Kategori tidak ditemukan');
 
+        DB::beginTransaction();
         try {
             $delete = $this->categoryInterface->delete($id);
 
+            DB::commit();
             return Response::Ok('berhasil menghapus data kategori', $delete);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return Response::Error('gagal menghapus data kategori', $th->getMessage());
+        }
+    }
+
+    public function noPaginate(Request $requeset)
+    {
+        $payload = [];
+
+        try {
+            $data = $this->categoryInterface->noPaginate($payload);
+
+            return Response::Ok('Berhasil mendapatkan data kategori', CategoryResource::collection($data));
+        } catch (\Throwable $th) {
+            return Response::Error('Gagal mendapatkan data kategori', $th->getMessage());
         }
     }
 }

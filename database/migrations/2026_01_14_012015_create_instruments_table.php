@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('brand')->nullable();
             $table->integer('price_per_day');
-            $table->enum('status',['available','rented','maintenance','damaged']);
+            $table->enum('status', ['available', 'rented', 'maintenance', 'damaged']);
+            $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

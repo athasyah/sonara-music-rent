@@ -2,12 +2,12 @@
 
 namespace App\Contracts\Repositories;
 
-use App\Contracts\Interfaces\CategoryInterface;
-use App\Models\Category;
+use App\Contracts\Interfaces\InstrumentInterface;
+use App\Models\Instrument;
 
-class CategoryRepository extends BaseRepository implements CategoryInterface
+class InstrumentRepository extends BaseRepository implements InstrumentInterface
 {
-    public function __construct(Category $user)
+    public function __construct(Instrument $user)
     {
         $this->model = $user;
     }

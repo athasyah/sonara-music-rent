@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class guarantee extends Model
+class Guarantee extends Model
 {
     use HasUuids, SoftDeletes;
     protected $guarded = [];
