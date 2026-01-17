@@ -2,12 +2,12 @@
 
 namespace App\Contracts\Repositories;
 
-use App\Contracts\Interfaces\InstrumentInterface;
-use App\Models\Instrument;
+use App\Contracts\Interfaces\RentalInterface;
+use App\Models\Rental;
 
-class InstrumentRepository extends BaseRepository implements InstrumentInterface
+class RentalRepository extends BaseRepository implements RentalInterface
 {
-    public function __construct(Instrument $user)
+    public function __construct(Rental $user)
     {
         $this->model = $user;
     }
@@ -19,7 +19,7 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
 
     public function show(mixed $id)
     {
-        return $this->model->find($id);
+        return $this->model->with('details')->find($id);
     }
 
     public function store(array $data)
@@ -37,14 +37,21 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
 
     public function delete(mixed $id)
     {
-        return $this->show($id)->delete();
+
+        $rental = $this->show($id);
+        if (!$rental) return false;
+
+        $rental->details()->delete();
+
+        return $rental->delete();
     }
+
 
     public function customPaginate(int $perPage = 10, int $page = 1, ?array $data): mixed
     {
         return $this->model->query()
             ->orderBy('updated_at', 'desc')
-            ->with(['category'])
+            ->with(['details', 'user', 'customer'])
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -52,7 +59,7 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
-            ->with(['category'])
+            ->with(['details', 'user', 'customer'])
             ->get();
         return $query;
     }

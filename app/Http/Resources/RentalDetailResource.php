@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class InstrumentResource extends JsonResource
+class RentalDetailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,13 +16,12 @@ class InstrumentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'category_id' => $this->category_id,
-            'category_name' => $this->category->name,
-            'name' => $this->name,
-            'brand' => $this->brand,
+            'instrument_id' => $this->instrument_id,
+            'insrument' => $this->instrument->name,
+            'rental_id' => $this->rental_id,
             'price_per_day' => $this->price_per_day,
-            'status' => $this->status,
-            'image' => $this->image,
+            'days' => $this->day,
+            'subtotal' => $this->subtotal,
         ];
     }
 }

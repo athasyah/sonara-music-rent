@@ -15,10 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->nullable()->constrained();
             $table->foreignUuid('customer_id')->nullable()->constrained('users');
-            $table->string('rent_date')->nullable();
-            $table->string('return_date')->nullable();
+            $table->dateTime('rent_date')->nullable();
+            $table->dateTime('return_date')->nullable();
             $table->integer('total_price');
-            $table->enum('status', ['pending', 'approved', 'ongoing', 'returned', 'cancelled']);
+            $table->enum('status', ['pending','reserved', 'approved', 'ongoing', 'returned', 'cancelled']);
             $table->timestamps();
             $table->softDeletes();
         });
