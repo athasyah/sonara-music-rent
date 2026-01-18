@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
 use App\Enums\StatusEnum;
+use App\Events\RentalStatusUpdated;
 use App\Helpers\PaginationHelper;
 use App\Helpers\Response;
 use App\Http\Requests\RentalRequest;
+use App\Http\Requests\StatusRentalRequest;
 use App\Http\Resources\RentalResource;
 use App\Models\rental;
 use App\Services\RentalService;
@@ -203,6 +205,66 @@ class RentalController extends Controller
             return Response::Ok('Berhasil mendapatkan data rental', RentalResource::collection($data));
         } catch (\Throwable $th) {
             return Response::Error('Gagal mendapatkan data rental', $th->getMessage());
+        }
+    }
+
+    public function statusRental(StatusRentalRequest $request, string $id)
+    {
+        $rental = $this->rentalInterface->show($id);
+        if (!$rental) {
+            return Response::NotFound('Rental tidak ditemukan');
+        }
+
+        $validate  = $request->validated();
+        $newStatus = $validate['status'];
+        $oldStatus = $rental->status;
+
+        $allowedTransitions = [
+            StatusEnum::PENDING->value => [
+                StatusEnum::APPROVED->value,
+                StatusEnum::CANCELLED->value,
+            ],
+            StatusEnum::APPROVED->value => [
+                StatusEnum::ONGOING->value,
+            ],
+            StatusEnum::ONGOING->value => [
+                StatusEnum::RETURNED->value,
+            ],
+        ];
+
+        if (
+            !isset($allowedTransitions[$oldStatus]) ||
+            !in_array($newStatus, $allowedTransitions[$oldStatus])
+        ) {
+            return Response::Error(
+                "Status {$oldStatus} tidak bisa diubah menjadi {$newStatus}",
+                null
+            );
+        }
+
+        DB::beginTransaction();
+        try {
+            // update status rental
+            $updatedRental = $this->rentalInterface->update($id, [
+                'status' => $newStatus
+            ]);
+
+            DB::commit();
+
+            // trigger event SETELAH commit
+            event(new RentalStatusUpdated(
+                $updatedRental->load('details.instrument'),
+                $oldStatus,
+                $newStatus
+            ));
+
+            return Response::Ok('Berhasil mengubah status rental', $updatedRental);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return Response::Error(
+                'Terjadi kesalahan saat mengubah status rental',
+                $th->getMessage()
+            );
         }
     }
 }

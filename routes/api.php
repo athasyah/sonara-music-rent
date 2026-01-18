@@ -32,7 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     //Endpoint Role Staff
-    Route::middleware(['role:' . RoleEnum::STAFF->value])->group(function () {});
+    Route::middleware(['role:' . RoleEnum::STAFF->value . '|' . RoleEnum::ADMIN->value])->group(function () {
+        Route::put('/rental/{id}/status', [RentalController::class, 'statusRental'])->name('rental-status');
+    });
 
     //Endpoint Role Customer
     Route::middleware(['role:' . RoleEnum::CUSTOMER->value . '|' . RoleEnum::ADMIN->value])->group(function () {

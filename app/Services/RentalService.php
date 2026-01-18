@@ -37,6 +37,14 @@ class RentalService
                 throw new \Exception('Instrument tidak ditemukan', 404);
             }
 
+            //Cek status instrument
+            if ($instrument->status !== StatusEnum::AVAILABLE->value) {
+                throw new \Exception(
+                    "Instrument {$instrument->name} sedang tidak tersedia",
+                    422
+                );
+            }
+
             return [
                 'instrument_id' => $instrument->id,
                 'price_per_day' => $instrument->price_per_day,
