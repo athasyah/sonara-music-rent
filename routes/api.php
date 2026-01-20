@@ -3,6 +3,7 @@
 use App\Enums\RoleEnum;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\InstrumentConditionController;
 use App\Http\Controllers\InstrumentController;
 use App\Http\Controllers\RentalController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //Endpoint Role Staff
     Route::middleware(['role:' . RoleEnum::STAFF->value . '|' . RoleEnum::ADMIN->value])->group(function () {
         Route::put('/rental/{id}/status', [RentalController::class, 'statusRental'])->name('rental-status');
+
+        Route::get('/instrument-condition/no-paginate',[InstrumentConditionController::class, 'noPaginate'])->name('instrument-condition-no-paginate');
+        Route::resource('instrument-condition', InstrumentConditionController::class);
     });
 
     //Endpoint Role Customer

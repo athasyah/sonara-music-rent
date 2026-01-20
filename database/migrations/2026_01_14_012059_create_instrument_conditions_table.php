@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('insrument_conditions', function (Blueprint $table) {
+        Schema::create('instrument_conditions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('instrument_id')->nullable()->constrained();
             $table->foreignUuid('rental_id')->nullable()->constrained();
             $table->enum('condition',['good','minor_damage','major_damage'])->nullable();
+            $table->string('note')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
