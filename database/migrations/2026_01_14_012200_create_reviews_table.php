@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignUuid('customer_id')->nullable()->constrained('users');
             $table->integer('rating');
             $table->string('comment')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -2,12 +2,12 @@
 
 namespace App\Contracts\Repositories;
 
-use App\Contracts\Interfaces\RentalDetailInterface;
-use App\Models\RentalDetail;
+use App\Contracts\Interfaces\ReviewInterface;
+use App\Models\Review;
 
-class RentalDetailRepository extends BaseRepository implements RentalDetailInterface
+class ReviewRepository extends BaseRepository implements ReviewInterface
 {
-    public function __construct(RentalDetail $user)
+    public function __construct(Review $user)
     {
         $this->model = $user;
     }
@@ -43,7 +43,6 @@ class RentalDetailRepository extends BaseRepository implements RentalDetailInter
     public function customPaginate(int $perPage = 10, int $page = 1, ?array $data): mixed
     {
         return $this->model->query()
-            ->with(['instrument', 'rental'])
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
     }
@@ -52,18 +51,11 @@ class RentalDetailRepository extends BaseRepository implements RentalDetailInter
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
-            ->with(['instrument', 'rental'])
             ->get();
         return $query;
     }
 
-    public function deleteByRentalId(string $rentalId)
-    {
-        return $this->model
-            ->where('rental_id', $rentalId)
-            ->delete();
-    }
-    public function instrumentExistsInRental(string $rentalId, string $instrumentId)
+    public function existsByRentalAndInstrument(string $rentalId, string $instrumentId)
     {
         return $this->model->where('rental_id', $rentalId)
             ->where('instrument_id', $instrumentId)

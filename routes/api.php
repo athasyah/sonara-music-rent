@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InstrumentConditionController;
 use App\Http\Controllers\InstrumentController;
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -36,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware(['role:' . RoleEnum::STAFF->value . '|' . RoleEnum::ADMIN->value])->group(function () {
         Route::put('/rental/{id}/status', [RentalController::class, 'statusRental'])->name('rental-status');
 
-        Route::get('/instrument-condition/no-paginate',[InstrumentConditionController::class, 'noPaginate'])->name('instrument-condition-no-paginate');
+        Route::get('/instrument-condition/no-paginate', [InstrumentConditionController::class, 'noPaginate'])->name('instrument-condition-no-paginate');
         Route::resource('instrument-condition', InstrumentConditionController::class);
     });
 
@@ -45,5 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('rental/no-paginate', [RentalController::class, 'noPaginate'])->name('rental-no-paginate');
         Route::resource('rental', RentalController::class);
+
+        Route::get('review/no-paginate', [ReviewController::class, 'noPaginate'])->name('review-no-paginate');
+        Route::resource('review', ReviewController::class);
     });
 });

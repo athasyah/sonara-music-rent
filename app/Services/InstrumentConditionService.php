@@ -14,7 +14,7 @@ class InstrumentConditionService
             'rental_id' => $data['rental_id'],
             'instrument_id' => $data['instrument_id'],
             'condition' => $data['condition'],
-            'note' => $data['note'],
+            'note' => $data['note'] ?? null,
             'image' => $data['image'] ?? null,
         ];
 

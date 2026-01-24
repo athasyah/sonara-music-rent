@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Contracts\Repositories;
 
 use App\Contracts\Interfaces\InstrumentConditionInterface;
 use App\Contracts\Repositories\BaseRepository;

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Interfaces\InstrumentConditionInterface;
+use App\Contracts\Interfaces\InstrumentInterface;
+use App\Contracts\Interfaces\RentalDetailInterface;
+use App\Enums\StatusEnum;
 use App\Events\InstrumentConditionCreated;
 use App\Helpers\PaginationHelper;
 use App\Helpers\Response;
 use App\Http\Requests\InstrumentConditionRequest;
 use App\Http\Resources\InstrumentConditionResource;
-use App\Models\Instrument;
 use App\Models\InstrumentCondition;
 use App\Services\InstrumentConditionService;
 use Illuminate\Http\Request;
@@ -16,11 +18,13 @@ use Illuminate\Support\Facades\DB;
 
 class InstrumentConditionController extends Controller
 {
-    private $conditionInterface, $conditionService;
-    public function __construct(InstrumentConditionInterface $conditionInterface, InstrumentConditionService $conditionService)
+    private $conditionInterface, $conditionService, $instrumentInterface, $rentalDetailInterface;
+    public function __construct(InstrumentConditionInterface $conditionInterface, InstrumentConditionService $conditionService, InstrumentInterface $instrumentInterface, RentalDetailInterface $rentalDetailInterface)
     {
         $this->conditionInterface = $conditionInterface;
         $this->conditionService = $conditionService;
+        $this->instrumentInterface = $instrumentInterface;
+        $this->rentalDetailInterface = $rentalDetailInterface;
     }
     /**
      * Display a listing of the resource.
@@ -54,6 +58,25 @@ class InstrumentConditionController extends Controller
      */
     public function store(InstrumentConditionRequest $request)
     {
+        if (!$this->rentalDetailInterface->instrumentExistsInRental(
+            $request->rental_id,
+            $request->instrument_id
+        )) {
+            return Response::Error(
+                'Instrumen tidak termasuk dalam rental ini',
+                null
+            );
+        }
+
+        $allowedStatuses = [
+            StatusEnum::AVAILABLE->value,
+            StatusEnum::MAINTENANCE->value,
+        ];
+
+        $instrument = $this->instrumentInterface->show($request->instrument_id);
+
+        if (!in_array($instrument->status, $allowedStatuses)) return Response::Error('Status alat harus tersedia atau diperbaiki', null);
+
         $validate = $request->validated();
 
         DB::beginTransaction();
@@ -100,6 +123,25 @@ class InstrumentConditionController extends Controller
      */
     public function update(InstrumentConditionRequest $request, string $id)
     {
+        if (!$this->rentalDetailInterface->instrumentExistsInRental(
+            $request->rental_id,
+            $request->instrument_id
+        )) {
+            return Response::Error(
+                'Instrumen tidak termasuk dalam rental ini',
+                null
+            );
+        }
+        
+        $allowedStatuses = [
+            StatusEnum::AVAILABLE->value,
+            StatusEnum::MAINTENANCE->value,
+        ];
+
+        $instrument = $this->instrumentInterface->show($request->instrument_id);
+
+        if (!in_array($instrument->status, $allowedStatuses)) return Response::Error('Status alat harus tersedia atau diperbaiki', null);
+
         $data = $this->conditionInterface->show($id);
         if (!$data) return Response::NotFound('Gagal mendapatkan data kondisi instrumen');
 
