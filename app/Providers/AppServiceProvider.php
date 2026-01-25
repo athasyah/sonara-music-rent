@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Contracts\Interfaces\CategoryInterface;
+use App\Contracts\Interfaces\GuaranteeInterface;
 use App\Contracts\Interfaces\InstrumentConditionInterface;
 use App\Contracts\Interfaces\InstrumentInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
@@ -10,6 +11,7 @@ use App\Contracts\Interfaces\RentalInterface;
 use App\Contracts\Interfaces\ReviewInterface;
 use App\Contracts\Interfaces\UserInterface;
 use App\Contracts\Repositories\CategoryRepository;
+use App\Contracts\Repositories\GuaranteeRepository;
 use App\Contracts\Repositories\InstrumentRepository;
 use App\Contracts\Repositories\RentalDetailRepository;
 use App\Contracts\Repositories\RentalRepository;
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         RentalDetailInterface::class => RentalDetailRepository::class,
         InstrumentConditionInterface::class => InstrumentConditionRepository::class,
         ReviewInterface::class => ReviewRepository::class,
+        GuaranteeInterface::class => GuaranteeRepository::class,
     ];
     public function register(): void
     {

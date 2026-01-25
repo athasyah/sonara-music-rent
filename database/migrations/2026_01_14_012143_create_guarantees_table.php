@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('guarantees', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('rental_id')->nullable()->constrained();
+            $table->foreignUuid('user_id')->nullable()->constrained();
             $table->string('type');
-            $table->string('value')->nullable();
-            $table->enum('status',['held','returned']);
+            $table->string('note')->nullable();
+            $table->enum('status', ['held', 'returned']);
             $table->timestamps();
             $table->softDeletes();
         });

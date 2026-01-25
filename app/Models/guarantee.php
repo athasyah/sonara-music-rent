@@ -10,4 +10,9 @@ class Guarantee extends Model
 {
     use HasUuids, SoftDeletes;
     protected $guarded = [];
+
+    public function rental()
+    {
+        return $this->belongsTo(Rental::class);
+    }
 }

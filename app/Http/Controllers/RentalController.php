@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Interfaces\GuaranteeInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
 use App\Enums\StatusEnum;
@@ -12,18 +13,21 @@ use App\Http\Requests\RentalRequest;
 use App\Http\Requests\StatusRentalRequest;
 use App\Http\Resources\RentalResource;
 use App\Models\rental;
+use App\Services\GuaranteeService;
 use App\Services\RentalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RentalController extends Controller
 {
-    private $rentalInterface, $rentalService, $rentDetailInterface;
-    public function __construct(RentalInterface $rentalInterface, RentalService $rentalService, RentalDetailInterface $rentalDetailInterface)
+    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService;
+    public function __construct(RentalInterface $rentalInterface, RentalService $rentalService, RentalDetailInterface $rentalDetailInterface, GuaranteeInterface $guaranteeInterface, GuaranteeService $guaranteeService)
     {
         $this->rentalInterface = $rentalInterface;
         $this->rentalService = $rentalService;
         $this->rentDetailInterface = $rentalDetailInterface;
+        $this->guaranteeInterface = $guaranteeInterface;
+        $this->guaranteeService = $guaranteeService;
     }
     /**
      * Display a listing of the resource.
@@ -80,6 +84,11 @@ class RentalController extends Controller
             foreach ($details as &$detail) {
                 $detail['rental_id'] = $rental->id;
                 $this->rentDetailInterface->store($detail);
+            }
+
+            if ($request->has('guarantee')) {
+                $mapGuarantee = $this->guaranteeService->mapGuarantee($request->guarantee, $rental->id);
+                $this->guaranteeInterface->store($mapGuarantee);
             }
 
             DB::commit();

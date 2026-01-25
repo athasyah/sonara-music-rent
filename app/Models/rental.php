@@ -25,4 +25,9 @@ class Rental extends Model
     {
         return $this->hasMany(RentalDetail::class, 'rental_id', 'id');
     }
+
+    public function guarantees()
+    {
+        return $this->hasOne(Guarantee::class);
+    }
 }

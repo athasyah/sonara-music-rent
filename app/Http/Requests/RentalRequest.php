@@ -30,6 +30,9 @@ class RentalRequest extends FormRequest
             'return_date' => 'required|date|after_or_equal:rent_date',
             'details' => 'required|array|min:1',
             'details.*.instrument_id' => 'required|string|exists:instruments,id',
+            'guarantee' => 'nullable|array',
+            'guarantee.type' => 'required_with:guarantee|string|in:ktp,sim,deposit,lainnya',
+            'guarantee.note' => 'nullable|string|max:255',
         ];
     }
 
@@ -54,6 +57,11 @@ class RentalRequest extends FormRequest
             'details.*.day.required' => 'Jumlah hari sewa harus diisi.',
             'details.*.day.integer' => 'Jumlah hari sewa harus berupa angka.',
             'details.*.day.min' => 'Jumlah hari sewa minimal 1 hari.',
+
+            'guarantee.array' => 'Data jaminan harus berupa objek.',
+            'guarantee.type.required_with' => 'Jenis jaminan wajib diisi.',
+            'guarantee.type.in' => 'Jenis jaminan tidak valid.',
+            'guarantee.note.string' => 'Catatan jaminan harus berupa teks.',
         ];
     }
 
@@ -62,5 +70,4 @@ class RentalRequest extends FormRequest
     {
         throw new HttpResponseException(Response::Error("Kesalahan dalam validasi", $validator->errors()));
     }
-
 }
