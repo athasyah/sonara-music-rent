@@ -2,28 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
 use App\Contracts\Interfaces\ReviewInterface;
+use App\Enums\ActionEnum;
+use App\Enums\ModuleEnum;
 use App\Helpers\PaginationHelper;
 use App\Helpers\Response;
 use App\Http\Requests\ReviewRequest;
 use App\Http\Resources\ReviewResource;
 use App\Models\Rental;
 use App\Models\review;
+use App\Services\ActivityLogService;
 use App\Services\ReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ReviewController extends Controller
 {
-    private $reviewInterface, $reviewService, $rentalDetailInterface, $rentalInterface;
-    public function __construct(ReviewInterface $reviewInterface, ReviewService $reviewService, RentalDetailInterface $rentalDetailInterface, RentalInterface $rentalInterface)
+    private $reviewInterface, $reviewService, $rentalDetailInterface, $rentalInterface, $logService, $logInterface;
+    public function __construct(ReviewInterface $reviewInterface, ReviewService $reviewService, RentalDetailInterface $rentalDetailInterface, RentalInterface $rentalInterface, ActivityLogService $logService, ActivityLogInterface $logInterface)
     {
         $this->reviewInterface = $reviewInterface;
         $this->reviewService = $reviewService;
         $this->rentalDetailInterface = $rentalDetailInterface;
         $this->rentalInterface = $rentalInterface;
+        $this->logService = $logService;
+        $this->logInterface = $logInterface;
     }
     /**
      * Display a listing of the resource.
@@ -78,6 +84,9 @@ class ReviewController extends Controller
             $mapping = $this->reviewService->mappingReview($validate);
             $data = $this->reviewInterface->store($mapping);
 
+            $log = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::REVIEW->value, 'Membuat data review "' . $data->name . '"');
+            $this->logInterface->store($log);
+
             DB::commit();
             return Response::Ok('Berhasil menambahkan data review', $data);
         } catch (\Throwable $th) {
@@ -129,6 +138,9 @@ class ReviewController extends Controller
             $mapping = $this->reviewService->mappingReview($validate);
             $update = $this->reviewInterface->update($id, $mapping);
 
+            $log = $this->logService->logActivity(ActionEnum::UPDATE->value, ModuleEnum::REVIEW->value, 'Mengubah data review "' . $data->name . '"');
+            $this->logInterface->store($log);
+
             DB::commit();
             return Response::Ok('Berhasil mengubah data review', $update);
         } catch (\Throwable $th) {
@@ -147,6 +159,9 @@ class ReviewController extends Controller
         if (!$data) return Response::NotFound('Data review tidak ditemukan');
         try {
             $delete = $this->reviewInterface->delete($id);
+
+            $log = $this->logService->logActivity(ActionEnum::DELETE->value, ModuleEnum::REVIEW->value, 'Membuat data review "' . $data->name . '"');
+            $this->logInterface->store($log);
 
             return Response::Ok('Berhasil menghapus data review', $delete);
         } catch (\Throwable $th) {

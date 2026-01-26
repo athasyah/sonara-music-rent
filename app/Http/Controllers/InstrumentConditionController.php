@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\InstrumentConditionInterface;
 use App\Contracts\Interfaces\InstrumentInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
+use App\Enums\ActionEnum;
+use App\Enums\ModuleEnum;
 use App\Enums\StatusEnum;
 use App\Events\InstrumentConditionCreated;
 use App\Helpers\PaginationHelper;
@@ -12,19 +15,22 @@ use App\Helpers\Response;
 use App\Http\Requests\InstrumentConditionRequest;
 use App\Http\Resources\InstrumentConditionResource;
 use App\Models\InstrumentCondition;
+use App\Services\ActivityLogService;
 use App\Services\InstrumentConditionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class InstrumentConditionController extends Controller
 {
-    private $conditionInterface, $conditionService, $instrumentInterface, $rentalDetailInterface;
-    public function __construct(InstrumentConditionInterface $conditionInterface, InstrumentConditionService $conditionService, InstrumentInterface $instrumentInterface, RentalDetailInterface $rentalDetailInterface)
+    private $conditionInterface, $conditionService, $instrumentInterface, $rentalDetailInterface, $logService, $logInterface;
+    public function __construct(InstrumentConditionInterface $conditionInterface, InstrumentConditionService $conditionService, InstrumentInterface $instrumentInterface, RentalDetailInterface $rentalDetailInterface, ActivityLogService $logService, ActivityLogInterface $logInterface)
     {
         $this->conditionInterface = $conditionInterface;
         $this->conditionService = $conditionService;
         $this->instrumentInterface = $instrumentInterface;
         $this->rentalDetailInterface = $rentalDetailInterface;
+        $this->logService = $logService;
+        $this->logInterface = $logInterface;
     }
     /**
      * Display a listing of the resource.
@@ -84,6 +90,9 @@ class InstrumentConditionController extends Controller
             $service = $this->conditionService->mappingInstrumentCondition($validate);
             $data = $this->conditionInterface->store($service);
 
+            $log = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::CONDITION->value, 'Menambah data kondisi instrumen "' . $instrument->name . '"');
+            $this->logInterface->store($log);
+
             DB::commit();
             event(new InstrumentConditionCreated(
                 $data->load('instrument')
@@ -132,7 +141,7 @@ class InstrumentConditionController extends Controller
                 null
             );
         }
-        
+
         $allowedStatuses = [
             StatusEnum::AVAILABLE->value,
             StatusEnum::MAINTENANCE->value,
@@ -150,6 +159,9 @@ class InstrumentConditionController extends Controller
         try {
             $service = $this->conditionService->mappingInstrumentCondition($validate);
             $update = $this->conditionInterface->update($id, $service);
+
+            $log = $this->logService->logActivity(ActionEnum::UPDATE->value, ModuleEnum::CONDITION->value, 'Mengubah data kondisi instrumen "' . $instrument->name . '"');
+            $this->logInterface->store($log);
 
             DB::commit();
             event(new InstrumentConditionCreated(
@@ -173,6 +185,11 @@ class InstrumentConditionController extends Controller
         DB::beginTransaction();
         try {
             $data = $this->conditionInterface->delete($id);
+
+            $instrument = $this->instrumentInterface->show($data->instrument_id);
+
+            $log = $this->logService->logActivity(ActionEnum::DELETE->value, ModuleEnum::CONDITION->value, 'Menghapus data kondisi instrumen "' . $instrument->name . '"');
+            $this->logInterface->store($log);
 
             DB::commit();
             return Response::Ok('Berhasil menghapus data kondisi instrumen', $data);

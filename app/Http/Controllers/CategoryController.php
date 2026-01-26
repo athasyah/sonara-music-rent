@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\CategoryInterface;
+use App\Enums\ActionEnum;
+use App\Enums\ModuleEnum;
 use App\Helpers\PaginationHelper;
 use App\Helpers\Response;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
-    private $categoryInterface;
-    public function __construct(CategoryInterface $categoryInterface)
+    private $categoryInterface, $logService, $logInterface;
+    public function __construct(CategoryInterface $categoryInterface, ActivityLogService $logService, ActivityLogInterface $logInterface)
     {
         $this->categoryInterface = $categoryInterface;
+        $this->logService = $logService;
+        $this->logInterface = $logInterface;
     }
     /**
      * Display a listing of the resource.
@@ -56,6 +62,8 @@ class CategoryController extends Controller
         try {
             $category = $this->categoryInterface->store($validate);
 
+            $log = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::CATEGORY->value, 'Membuat data kategori "' . $category->name . '"');
+            $this->logInterface->store($log);
             DB::commit();
             return Response::Ok('Berhasil menambahkan data kategori', $category);
         } catch (\Throwable $th) {
@@ -102,8 +110,12 @@ class CategoryController extends Controller
         try {
             $update = $this->categoryInterface->update($id, $validate);
 
+            $newData = $this->categoryInterface->show($id);
+            $log = $this->logService->logActivity(ActionEnum::UPDATE->value, ModuleEnum::CATEGORY->value, 'Mengubah data kategori "' . $data->name . '" menjadi "' . $newData->name . '"');
+            $this->logInterface->store($log);
+
             DB::commit();
-            return Response::Ok('Berhasil mengubah data kategori', $update);
+            return Response::Ok('Berhasil mengubah data kategori', $newData);
         } catch (\Throwable $th) {
             DB::rollBack();
             return Response::Error('Gagal mengubah data kategori', $th->getMessage());
@@ -121,6 +133,9 @@ class CategoryController extends Controller
         DB::beginTransaction();
         try {
             $delete = $this->categoryInterface->delete($id);
+
+            $log = $this->logService->logActivity(ActionEnum::DELETE->value, ModuleEnum::CATEGORY->value, 'Menghapus data kategori "' . $data->name . '"');
+            $this->logInterface->store($log);
 
             DB::commit();
             return Response::Ok('berhasil menghapus data kategori', $delete);

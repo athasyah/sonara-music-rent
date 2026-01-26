@@ -2,23 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\InstrumentInterface;
+use App\Enums\ActionEnum;
+use App\Enums\ModuleEnum;
 use App\Helpers\PaginationHelper;
 use App\Helpers\Response;
 use App\Http\Requests\InstrumentRequest;
 use App\Http\Resources\InstrumentResource;
 use App\Models\Instrument;
+use App\Services\ActivityLogService;
 use App\Services\InstrumentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class InstrumentController extends Controller
 {
-    private $instrumentInterface, $instrumentService;
-    public function __construct(InstrumentInterface $instrumentInterface, InstrumentService $instrumentService)
+    private $instrumentInterface, $instrumentService, $logService, $logInterface;
+    public function __construct(InstrumentInterface $instrumentInterface, InstrumentService $instrumentService, ActivityLogService $logService, ActivityLogInterface $logInterface)
     {
         $this->instrumentInterface = $instrumentInterface;
         $this->instrumentService = $instrumentService;
+        $this->logService = $logService;
+        $this->logInterface = $logInterface;
     }
     /**
      * Display a listing of the resource.
@@ -58,6 +64,9 @@ class InstrumentController extends Controller
         try {
             $service = $this->instrumentService->mappingInstrument($validate);
             $data = $this->instrumentInterface->store($service);
+
+            $log = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::INSTRUMENT->value, 'Membuat data instrumen "' . $data->name . '"');
+            $this->logInterface->store($log);
 
             DB::commit();
             return Response::Ok('Berhasil menambahkan data instrumen', $data);
@@ -108,6 +117,10 @@ class InstrumentController extends Controller
             $service = $this->instrumentService->mappingInstrument($validate);
 
             $instrumen = $this->instrumentInterface->update($id, $service);
+            $newData = $this->instrumentInterface->show($id);
+
+            $log = $this->logService->logActivity(ActionEnum::UPDATE->value, ModuleEnum::INSTRUMENT->value, 'Mengubah data instrumen "' . $data->name . '" menjadi "' . $newData->name . '"');
+            $this->logInterface->store($log);
 
             DB::commit();
             return Response::Ok('Berhasil mengubah data instrumen', new InstrumentResource($instrumen));
@@ -129,6 +142,9 @@ class InstrumentController extends Controller
         DB::beginTransaction();
         try {
             $instrumen = $this->instrumentInterface->delete($id);
+
+            $log = $this->logService->logActivity(ActionEnum::DELETE->value, ModuleEnum::INSTRUMENT->value, 'Menghapus data instrumen "' . $data->name . '"');
+            $this->logInterface->store($log);
 
             DB::commit();
             return Response::Ok('Berhasil menghapus data instrumen', $instrumen);

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\GuaranteeInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
+use App\Enums\ActionEnum;
+use App\Enums\ModuleEnum;
 use App\Enums\StatusEnum;
 use App\Events\RentalStatusUpdated;
 use App\Helpers\PaginationHelper;
@@ -13,6 +16,7 @@ use App\Http\Requests\RentalRequest;
 use App\Http\Requests\StatusRentalRequest;
 use App\Http\Resources\RentalResource;
 use App\Models\rental;
+use App\Services\ActivityLogService;
 use App\Services\GuaranteeService;
 use App\Services\RentalService;
 use Illuminate\Http\Request;
@@ -20,14 +24,16 @@ use Illuminate\Support\Facades\DB;
 
 class RentalController extends Controller
 {
-    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService;
-    public function __construct(RentalInterface $rentalInterface, RentalService $rentalService, RentalDetailInterface $rentalDetailInterface, GuaranteeInterface $guaranteeInterface, GuaranteeService $guaranteeService)
+    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService, $logService, $logInterface;
+    public function __construct(RentalInterface $rentalInterface, RentalService $rentalService, RentalDetailInterface $rentalDetailInterface, GuaranteeInterface $guaranteeInterface, GuaranteeService $guaranteeService, ActivityLogService $logService, ActivityLogInterface $logInterface)
     {
         $this->rentalInterface = $rentalInterface;
         $this->rentalService = $rentalService;
         $this->rentDetailInterface = $rentalDetailInterface;
         $this->guaranteeInterface = $guaranteeInterface;
         $this->guaranteeService = $guaranteeService;
+        $this->logService = $logService;
+        $this->logInterface = $logInterface;
     }
     /**
      * Display a listing of the resource.
@@ -79,8 +85,6 @@ class RentalController extends Controller
             $map = $this->rentalService->rentalStore($validate, $totalPrice);
             $rental = $this->rentalInterface->store($map);
 
-
-
             foreach ($details as &$detail) {
                 $detail['rental_id'] = $rental->id;
                 $this->rentDetailInterface->store($detail);
@@ -90,6 +94,12 @@ class RentalController extends Controller
                 $mapGuarantee = $this->guaranteeService->mapGuarantee($request->guarantee, $rental->id);
                 $this->guaranteeInterface->store($mapGuarantee);
             }
+
+            $log = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::RENTAL->value, 'Memnambah data Rental');
+            $this->logInterface->store($log);
+
+            $log1 = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::GUARANTEE->value, 'Menghapus data Guarantee');
+            $this->logInterface->store($log1);
 
             DB::commit();
             $rental->load(['details', 'customer']);
@@ -168,6 +178,9 @@ class RentalController extends Controller
                 $this->rentDetailInterface->store($detail);
             }
 
+            $log = $this->logService->logActivity(ActionEnum::UPDATE->value, ModuleEnum::RENTAL->value, 'Mengubah data Rental');
+            $this->logInterface->store($log);
+
             DB::commit();
 
             $updatedRental->load(['details', 'customer']);
@@ -195,6 +208,9 @@ class RentalController extends Controller
         DB::beginTransaction();
         try {
             $rent = $this->rentalInterface->delete($id);
+
+            $log = $this->logService->logActivity(ActionEnum::DELETE->value, ModuleEnum::RENTAL->value, 'Menghapus data Rental');
+            $this->logInterface->store($log);
 
             DB::commit();
             return Response::Ok('Berhasil menhapus data rental', $rent);
