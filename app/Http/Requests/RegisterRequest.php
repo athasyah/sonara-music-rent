@@ -30,8 +30,14 @@ class RegisterRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
-                'unique:users,email',
                 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/',
+                function ($attribute, $value, $fail) {
+                    $user = \App\Models\User::where('email', $value)->first();
+
+                    if ($user && $user->email_verified_at !== null) {
+                        $fail('Email sudah terdaftar.');
+                    }
+                }
             ],
             'password' => 'required|string|min:6|confirmed',
             'number_phone' => 'required|string|max:255',
@@ -60,7 +66,7 @@ class RegisterRequest extends FormRequest
         ];
     }
 
-        protected function failedValidation(Validator $validator): JsonResponse
+    protected function failedValidation(Validator $validator): JsonResponse
     {
         throw new HttpResponseException(Response::Error("Kesalahan dalam validasi", $validator->errors()));
     }

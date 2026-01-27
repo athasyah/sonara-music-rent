@@ -16,6 +16,9 @@ class UserService
             'email' => $data['email'],
             'number_phone' => $data['number_phone'],
             'password' => bcrypt($data['password']),
+            'email_otp' => $data['email_otp'] ?? null,
+            'otp_expires_at' => $data['otp_expires_at'] ?? null,
+            'email_verified_at' => $data['email_verified_at'] ?? null,
         ];
 
         if (isset($data['image'])) {
@@ -23,5 +26,22 @@ class UserService
         }
 
         return $result;
+    }
+
+    public function generate(string $userId): array
+    {
+        $otp = rand(100000, 999999);
+
+        return [
+            'user_id' => $userId,
+            'otp' => bcrypt($otp),
+            'expired_at' => now()->addMinutes(10),
+            'plain_otp' => $otp // hanya untuk email
+        ];
+    }
+
+    public function isExpired($otp): bool
+    {
+        return now()->greaterThan($otp->expired_at);
     }
 }

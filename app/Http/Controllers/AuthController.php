@@ -9,6 +9,8 @@ use App\Http\Requests\RegisterRequest;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Mail\EmailOtpMail;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -21,6 +23,7 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
+
         try {
             $validate = $request->validated();
 
@@ -29,8 +32,16 @@ class AuthController extends Controller
             }
 
             $user = auth()->user();
-            $roles = $user->getRoleNames();
 
+            if (!$user->email_verified_at) {
+                auth()->logout();
+                return Response::Error(
+                    'Email belum diverifikasi. Silakan verifikasi terlebih dahulu',
+                    null
+                );
+            }
+
+            $roles = $user->getRoleNames();
             $token = $user->createToken('authToken')->plainTextToken;
 
             $user->token = $token;
@@ -52,12 +63,46 @@ class AuthController extends Controller
                 $validate['image'] = $request->file('image');
             }
 
+            // generate OTP
+            $otp = rand(100000, 999999);
+
+            $validate['email_otp'] = $otp;
+            $validate['email_verified_at'] = null;
+            $validate['otp_expires_at'] = now()->addMinutes(5);
+
+            $user = $this->userInterface->findByEmail($request->email);
+            if ($user && $user->email_verified_at === null) {
+                // regenerate OTP
+                $otp = rand(100000, 999999);
+
+                $user->update([
+                    'email_otp' => $otp,
+                    'otp_expires_at' => now()->addMinutes(5),
+                ]);
+
+                Mail::to($user->email)->send(new EmailOtpMail($otp));
+
+                DB::commit();
+
+                return Response::Ok(
+                    'Akun sudah terdaftar tetapi belum diverifikasi. OTP baru telah dikirim.',
+                    null
+                );
+            }
+
             $service = $this->userService->mappingDataUser($validate);
             $user = $this->userInterface->store($service);
             $user->assignRole('customer');
 
+            // kirim email OTP
+            Mail::to($user->email)->send(new EmailOtpMail($otp));
+
             DB::commit();
-            return Response::Ok('Pendaftaran berhasil', $user);
+
+            return Response::Ok(
+                'Registrasi berhasil. Silakan cek email untuk verifikasi OTP',
+                null
+            );
         } catch (\Throwable $th) {
             DB::rollBack();
             return Response::Error('Terjadi kesalahan saat pendaftaran', $th->getMessage());
@@ -90,5 +135,39 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return Response::Error('Terjadi kesalahan saat logout: ' . $th->getMessage(), null);
         }
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|string'
+        ]);
+
+        $user = $this->userInterface->findByEmail($request->email);
+
+        if (!$user) {
+            return Response::Error('User tidak ditemukan', null);
+        }
+
+        if ($user->email_verified_at) {
+            return Response::Error('Email sudah diverifikasi', null);
+        }
+
+        if ($user->email_otp !== $request->otp) {
+            return Response::Error('OTP tidak valid', null);
+        }
+
+        if (now()->gt($user->otp_expires_at)) {
+            return Response::Error('OTP sudah kadaluarsa', null);
+        }
+
+        $user->update([
+            'email_verified_at' => now(),
+            'email_otp' => null,
+            'otp_expires_at' => null,
+        ]);
+
+        return Response::Ok('Email berhasil diverifikasi', null);
     }
 }

@@ -15,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable,SoftDeletes,HasUuids,HasApiTokens, HasRoles;
+    use HasFactory, Notifiable, SoftDeletes, HasUuids, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -27,7 +27,10 @@ class User extends Authenticatable
         'email',
         'password',
         'number_phone',
-        'image'
+        'image',
+        'email_verified_at',
+        'email_otp',
+        'otp_expires_at',
     ];
 
     /**
