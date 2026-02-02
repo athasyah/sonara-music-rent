@@ -69,7 +69,7 @@ class ReviewController extends Controller
 
         $rental = $this->rentalInterface->show($request->rental_id);
 
-        if (!$rental || $rental->customer_id !== auth()->id()) {
+        if (!$rental || $rental->customer_id !== auth()->user()->id()) {
             return Response::Error('Anda tidak berhak memberi review pada rental ini', null);
         }
 

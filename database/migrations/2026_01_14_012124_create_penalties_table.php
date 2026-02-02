@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('penalties', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->nullable()->constrained();
             $table->foreignUuid('rental_id')->nullable()->constrained();
             $table->string('title');
             $table->string('reason');

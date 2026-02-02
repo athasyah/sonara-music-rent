@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\GuaranteeInterface;
+use App\Contracts\Interfaces\PenaltyInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
 use App\Enums\ActionEnum;
@@ -18,15 +19,25 @@ use App\Http\Resources\RentalResource;
 use App\Models\rental;
 use App\Services\ActivityLogService;
 use App\Services\GuaranteeService;
+use App\Services\PenaltyService;
 use App\Services\RentalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RentalController extends Controller
 {
-    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService, $logService, $logInterface;
-    public function __construct(RentalInterface $rentalInterface, RentalService $rentalService, RentalDetailInterface $rentalDetailInterface, GuaranteeInterface $guaranteeInterface, GuaranteeService $guaranteeService, ActivityLogService $logService, ActivityLogInterface $logInterface)
-    {
+    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService, $logService, $logInterface, $penaltyService, $penaltyInterface;
+    public function __construct(
+        RentalInterface $rentalInterface,
+        RentalService $rentalService,
+        RentalDetailInterface $rentalDetailInterface,
+        GuaranteeInterface $guaranteeInterface,
+        GuaranteeService $guaranteeService,
+        ActivityLogService $logService,
+        ActivityLogInterface $logInterface,
+        PenaltyService $penaltyService,
+        PenaltyInterface $penaltyInterface
+    ) {
         $this->rentalInterface = $rentalInterface;
         $this->rentalService = $rentalService;
         $this->rentDetailInterface = $rentalDetailInterface;
@@ -34,6 +45,8 @@ class RentalController extends Controller
         $this->guaranteeService = $guaranteeService;
         $this->logService = $logService;
         $this->logInterface = $logInterface;
+        $this->penaltyInterface = $penaltyInterface;
+        $this->penaltyService = $penaltyService;
     }
     /**
      * Display a listing of the resource.
@@ -273,6 +286,20 @@ class RentalController extends Controller
             $updatedRental = $this->rentalInterface->update($id, [
                 'status' => $newStatus
             ]);
+
+            if ($newStatus === StatusEnum::RETURNED->value) {
+                $penaltyAmount = $this->penaltyService
+                    ->calculateLatePenalty($rental);
+
+                if ($penaltyAmount > 0) {
+                    $this->penaltyInterface->store([
+                        'rental_id' => $rental->id,
+                        'title' => 'Denda keterlambatan',
+                        'reason' => 'Pengembalian melebihi batas waktu',
+                        'amount' => $penaltyAmount,
+                    ]);
+                }
+            }
 
             DB::commit();
 

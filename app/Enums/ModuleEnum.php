@@ -11,4 +11,5 @@ enum ModuleEnum: string
     case RENTAL = 'rental';
     case AUTH = 'auth';
     case CONDITION = 'instrument condition';
+    case PENALTY = 'penalty';
 }

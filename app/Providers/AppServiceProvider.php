@@ -7,6 +7,7 @@ use App\Contracts\Interfaces\CategoryInterface;
 use App\Contracts\Interfaces\GuaranteeInterface;
 use App\Contracts\Interfaces\InstrumentConditionInterface;
 use App\Contracts\Interfaces\InstrumentInterface;
+use App\Contracts\Interfaces\PenaltyInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
 use App\Contracts\Interfaces\ReviewInterface;
@@ -19,6 +20,7 @@ use App\Contracts\Repositories\RentalDetailRepository;
 use App\Contracts\Repositories\RentalRepository;
 use App\Contracts\Repositories\UserRepository;
 use App\Contracts\Repositories\InstrumentConditionRepository;
+use App\Contracts\Repositories\PenaltyRepository;
 use App\Contracts\Repositories\ReviewRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         ReviewInterface::class => ReviewRepository::class,
         GuaranteeInterface::class => GuaranteeRepository::class,
         ActivityLogInterface::class => ActivityLogRepository::class,
+        PenaltyInterface::class => PenaltyRepository::class
     ];
     public function register(): void
     {

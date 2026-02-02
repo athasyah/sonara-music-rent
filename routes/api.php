@@ -14,10 +14,13 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login'])->name('login');
 Route::post('register', [AuthController::class, 'register'])->name('register');
 Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'getMe']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/user/{id}/change-password', [AuthController::class, 'changePassword']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {

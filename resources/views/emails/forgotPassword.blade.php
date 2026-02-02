@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Verifikasi Email</title>
+    <title>Verifikasi Lupa Password</title>
 </head>
 
 <body style="margin:0; padding:0; background:#f1f5f9; font-family:Arial, Helvetica, sans-serif;">
@@ -20,7 +20,7 @@
                                 Sonara Music Rent
                             </h1>
                             <p style="margin:6px 0 0; color:#dbeafe; font-size:14px;">
-                                Verifikasi Email
+                                Verifikasi Lupa Password
                             </p>
                         </td>
                     </tr>
@@ -33,8 +33,7 @@
                             </p>
 
                             <p style="color:#374151; line-height:1.7;">
-                                Terima kasih telah mendaftar di <b>Sonara Music Rent</b>.
-                                Gunakan kode OTP berikut untuk memverifikasi email Anda.
+                                Gunakan kode OTP berikut untuk memverifikasi.
                             </p>
 
                             <div style="margin:30px 0; text-align:center;">
@@ -61,7 +60,7 @@
                                 Demi keamanan akun Anda, jangan bagikan kode ini kepada siapa pun.
                             </p>
                             <p style="color:#6b7280; font-size:14px;">
-                                Abaikan jika anda tidak merasa mendaftar
+                                Abaikan email ini jika Anda tidak merasa melakukan permintaan reset password.
                             </p>
                         </td>
                     </tr>

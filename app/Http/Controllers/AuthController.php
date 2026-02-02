@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Contracts\Interfaces\UserInterface;
 use App\Helpers\Response;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\EmailOtpMail;
+use App\Mail\ForgotPasswordOtpMail;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -68,7 +71,7 @@ class AuthController extends Controller
 
             $validate['email_otp'] = $otp;
             $validate['email_verified_at'] = null;
-            $validate['otp_expires_at'] = now()->addMinutes(5);
+            $validate['otp_expires_at'] = now()->addMinutes(15);
 
             $user = $this->userInterface->findByEmail($request->email);
             if ($user && $user->email_verified_at === null) {
@@ -77,7 +80,7 @@ class AuthController extends Controller
 
                 $user->update([
                     'email_otp' => $otp,
-                    'otp_expires_at' => now()->addMinutes(5),
+                    'otp_expires_at' => now()->addMinutes(15),
                 ]);
 
                 Mail::to($user->email)->send(new EmailOtpMail($otp));
@@ -169,5 +172,98 @@ class AuthController extends Controller
         ]);
 
         return Response::Ok('Email berhasil diverifikasi', null);
+    }
+
+    public function changePassword(PasswordRequest $request, string $id)
+    {
+        $user = $this->userInterface->show($id);
+        if (!$user) return Response::NotFound('User tidak ditemukan');
+
+        $validate = $request->validated();
+        DB::beginTransaction();
+        try {
+            if (!Hash::check($validate['old_password'], $user->password)) {
+                return Response::Error('Password lama tidak valid', null);
+            }
+
+            $hashedPassword = Hash::make($validate['password']);
+            $update = $this->userInterface->update($id, ['password' => $hashedPassword]);
+
+            DB::commit();
+            return Response::Ok('Berhasil mengubah password', $update);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return Response::Error('Gagal mengubah password', $th->getMessage());
+        }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = $this->userInterface->findByEmail($request->email);
+
+        if (!$user) {
+            return Response::Error('Email tidak terdaftar', null);
+        }
+
+        if ($user->email_verified_at == null) {
+            return Response::Error('Email tidak terdaftar atau belum terverifikasi', null);
+        }
+
+        if ($user->reset_password_expires_at && now()->lt($user->reset_password_expires_at->subMinutes(13))) {
+            return Response::Error('OTP sudah dikirim, silakan tunggu beberapa saat', null);
+        }
+
+        $otp = rand(100000, 999999);
+
+        $user->update([
+            'reset_password_otp' => $otp,
+            'reset_password_expires_at' => now()->addMinutes(15),
+        ]);
+
+        Mail::to($user->email)->send(new ForgotPasswordOtpMail($otp));
+
+        return Response::Ok(
+            'Kode OTP reset password telah dikirim ke email',
+            null
+        );
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = $this->userInterface->findByEmail($request->email);
+
+        if (!$user) {
+            return Response::Error('User tidak ditemukan', null);
+        }
+
+        if (!$user->reset_password_otp || !$user->reset_password_expires_at) {
+            return Response::Error('Tidak ada permintaan reset password', null);
+        }
+
+        if (now()->gt($user->reset_password_expires_at)) {
+            return Response::Error('OTP sudah kadaluarsa', null);
+        }
+
+        if ($user->reset_password_otp !== $request->otp) {
+            return Response::Error('OTP tidak valid', null);
+        }
+
+        $user->update([
+            'password' => bcrypt($request->password),
+            'reset_password_otp' => null,
+            'reset_password_expires_at' => null,
+        ]);
+
+        return Response::Ok('Password berhasil diubah', null);
     }
 }
