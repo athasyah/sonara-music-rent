@@ -42,9 +42,10 @@ class CategoryRepository extends BaseRepository implements CategoryInterface
 
     public function customPaginate(int $perPage = 10, int $page = 1, ?array $data): mixed
     {
-        return $this->model->query()
-            ->orderBy('updated_at', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
+        $query = $this->model->query()
+            ->orderBy('updated_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function noPaginate(array $data): mixed
@@ -52,6 +53,7 @@ class CategoryRepository extends BaseRepository implements CategoryInterface
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
             ->get();
+
         return $query;
     }
 }

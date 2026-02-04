@@ -14,7 +14,7 @@ class UserService
         $result = [
             'name' => $data['name'],
             'email' => $data['email'],
-            'number_phone' => $data['number_phone'],
+            'number_phone' => $data['number_phone'] ?? null,
             'password' => bcrypt($data['password']),
             'email_otp' => $data['email_otp'] ?? null,
             'otp_expires_at' => $data['otp_expires_at'] ?? null,

@@ -45,6 +45,7 @@ class InstrumentConditionRepository extends BaseRepository implements Instrument
     {
         return $this->model->query()
             ->orderBy('updated_at', 'desc')
+            ->with(['rental', 'instrument'])
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -52,6 +53,7 @@ class InstrumentConditionRepository extends BaseRepository implements Instrument
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
+            ->with(['rental', 'instrument'])
             ->get();
         return $query;
     }

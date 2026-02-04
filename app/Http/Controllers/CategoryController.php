@@ -30,7 +30,7 @@ class CategoryController extends Controller
     {
         $per_page = $request->per_page ?? 8;
         $page = $request->page ?? 1;
-        $payload = [];
+        $payload = $request->only(['category']);
         try {
             $data = $this->categoryInterface->customPaginate($per_page, $page, $payload);
             $resource = CategoryResource::collection($data);
@@ -145,9 +145,9 @@ class CategoryController extends Controller
         }
     }
 
-    public function noPaginate(Request $requeset)
+    public function noPaginate(Request $request)
     {
-        $payload = [];
+        $payload = $request->only(['category']);
 
         try {
             $data = $this->categoryInterface->noPaginate($payload);

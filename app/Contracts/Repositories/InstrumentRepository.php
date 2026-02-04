@@ -42,10 +42,29 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
 
     public function customPaginate(int $perPage = 10, int $page = 1, ?array $data): mixed
     {
-        return $this->model->query()
+        $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
-            ->with(['category'])
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->with(['category']);
+
+        if (!empty($data['category'])) {
+            $query->whereHas('category', function ($q) use ($data) {
+                $q->where('name', $data['category']);
+            });
+        }
+
+        if (!empty($data['min_price'])) {
+            $query->where('price_per_day', '>=', $data['min_price']);
+        }
+
+        if (!empty($data['max_price'])) {
+            $query->where('price_per_day', '<=', $data['max_price']);
+        }
+
+        if (!empty($data['status'])) {
+            $query->where('status', $data['status']);
+        }
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function noPaginate(array $data): mixed
@@ -54,6 +73,29 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
             ->orderBy('updated_at', 'desc')
             ->with(['category'])
             ->get();
+
+        if (!empty($data['category'])) {
+            $query->whereHas('category', function ($q) use ($data) {
+                $q->where('name', $data['category']);
+            });
+        }
+
+        if (!empty($data['min_price'])) {
+            $query->where('price_per_day', '>=', $data['min_price']);
+        }
+
+        if (!empty($data['max_price'])) {
+            $query->where('price_per_day', '<=', $data['max_price']);
+        }
+
+        if (!empty($data['status'])) {
+            $query->where('status', $data['status']);
+        }
+
+        if (!empty($data['brand'])) {
+            $query->where('brand', $data['brand']);
+        }
+
         return $query;
     }
 }

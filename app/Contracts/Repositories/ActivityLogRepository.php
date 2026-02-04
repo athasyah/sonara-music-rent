@@ -45,6 +45,7 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogInterfa
         return $this->model->query()
             ->with(['user'])
             ->orderBy('updated_at', 'desc')
+            ->with(['user'])
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -53,6 +54,7 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogInterfa
         $query = $this->model->query()
             ->with(['user'])
             ->orderBy('updated_at', 'desc')
+            ->with(['user'])
             ->get();
         return $query;
     }

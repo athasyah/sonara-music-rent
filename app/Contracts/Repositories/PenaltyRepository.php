@@ -44,6 +44,7 @@ class PenaltyRepository extends BaseRepository implements PenaltyInterface
     {
         return $this->model->query()
             ->orderBy('updated_at', 'desc')
+            ->with(['rental', 'instrument', 'customer'])
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -51,6 +52,7 @@ class PenaltyRepository extends BaseRepository implements PenaltyInterface
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
+            ->with(['rental', 'instrument', 'customer'])
             ->get();
         return $query;
     }

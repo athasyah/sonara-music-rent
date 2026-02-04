@@ -44,6 +44,7 @@ class GuaranteeRepository extends BaseRepository implements GuaranteeInterface
     {
         return $this->model->query()
             ->orderBy('updated_at', 'desc')
+            ->with(['rental'])
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -51,6 +52,7 @@ class GuaranteeRepository extends BaseRepository implements GuaranteeInterface
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
+            ->with(['rental'])
             ->get();
         return $query;
     }

@@ -40,7 +40,7 @@ class RegisterRequest extends FormRequest
                 }
             ],
             'password' => 'required|string|min:6|confirmed',
-            'number_phone' => 'required|string|max:255',
+            'number_phone' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }

@@ -33,7 +33,7 @@ class InstrumentController extends Controller
     {
         $per_page = $request->per_page ?? 8;
         $page = $request->page ?? 1;
-        $payload = [];
+        $payload = $request->only(['category', 'min_price', 'max_price', 'status', 'brand']);
         try {
             $data = $this->instrumentInterface->customPaginate($per_page, $page, $payload);
             $resource = InstrumentResource::collection($data);
@@ -156,7 +156,7 @@ class InstrumentController extends Controller
 
     public function noPaginate(Request $request)
     {
-        $payload = [];
+        $payload = $request->only(['category', 'min_price', 'max_price', 'status', 'brand']);
 
         try {
             $data = $this->instrumentInterface->noPaginate($payload);
