@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->enum('status', ['held', 'returned']);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\InstrumentConditionController;
 use App\Http\Controllers\InstrumentController;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -28,6 +29,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //Endpoint Role Admin
     Route::middleware(['role:' . RoleEnum::ADMIN->value])->group(function () {
 
+        //Route User
+        Route::post('user/{id}', [UserController::class, 'update']);
+        Route::resource('user', UserController::class)->except('update');
+
         //route Kategori
         Route::get('category/no-paginate', [CategoryController::class, 'noPaginate'])->name('category-no-paginate');
         Route::resource('category', CategoryController::class);
@@ -44,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Endpoint Role Staff
     Route::middleware(['role:' . RoleEnum::STAFF->value . '|' . RoleEnum::ADMIN->value])->group(function () {
+        //Route User
+        Route::post('user/{id}', [UserController::class, 'update']);
 
         //Route Status Rental
         Route::put('/rental/{id}/status', [RentalController::class, 'statusRental'])->name('rental-status');
@@ -55,6 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Endpoint Role Customer
     Route::middleware(['role:' . RoleEnum::CUSTOMER->value . '|' . RoleEnum::ADMIN->value])->group(function () {
+
+        //Route User
+        Route::post('user/{id}', [UserController::class, 'update']);
 
         //Route Rental
         Route::get('rental/no-paginate', [RentalController::class, 'noPaginate'])->name('rental-no-paginate');

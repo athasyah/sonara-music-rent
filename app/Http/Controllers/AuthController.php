@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Interfaces\UserInterface;
+use App\Enums\RoleEnum;
 use App\Helpers\Response;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\PasswordRequest;
@@ -95,7 +96,7 @@ class AuthController extends Controller
 
             $service = $this->userService->mappingDataUser($validate);
             $user = $this->userInterface->store($service);
-            $user->assignRole('customer');
+            $user->assignRole(RoleEnum::CUSTOMER->value);
 
             // kirim email OTP
             Mail::to($user->email)->send(new EmailOtpMail($otp));

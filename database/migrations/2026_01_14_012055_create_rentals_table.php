@@ -20,7 +20,6 @@ return new class extends Migration
             $table->integer('total_price');
             $table->enum('status', ['pending','reserved', 'approved', 'ongoing', 'returned', 'cancelled']);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

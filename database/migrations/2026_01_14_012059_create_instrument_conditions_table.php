@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

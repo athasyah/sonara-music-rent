@@ -8,14 +8,14 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Validation\Validator;
 
-class RegisterRequest extends FormRequest
+class UserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -39,8 +39,6 @@ class RegisterRequest extends FormRequest
                     }
                 }
             ],
-            'password' => 'required|string|min:6|confirmed',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 
@@ -54,13 +52,6 @@ class RegisterRequest extends FormRequest
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
             'email.regex' => 'Email harus menggunakan domain yang valid',
-
-            'password.required' => 'Password wajib diisi.',
-            'password.string' => 'Password harus berupa teks.',
-            'password.min' => 'Password minimal 6 karakter.',
-
-            'image.mimes' => 'File wajib berupa PNG,JPG, dan JPEG',
-            'image.max' => 'Maksimal ukuran gambar adalah 2mb'
         ];
     }
 

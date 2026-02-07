@@ -14,7 +14,6 @@ class UserService
         $result = [
             'name' => $data['name'],
             'email' => $data['email'],
-            'number_phone' => $data['number_phone'] ?? null,
             'password' => bcrypt($data['password']),
             'email_otp' => $data['email_otp'] ?? null,
             'otp_expires_at' => $data['otp_expires_at'] ?? null,
@@ -43,5 +42,32 @@ class UserService
     public function isExpired($otp): bool
     {
         return now()->greaterThan($otp->expired_at);
+    }
+
+    public function createUser(array $data)
+    {
+        $result = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt('staffpassword'),
+            'email_otp' => $data['email_otp'] ?? null,
+            'otp_expires_at' => $data['otp_expires_at'] ?? null,
+            'email_verified_at' => '2026-01-26',
+        ];
+
+        return $result;
+    }
+
+    public function updateUser(array $data)
+    {
+        $result = [
+            'name' => $data['name'] ?? null,
+        ];
+
+        if (isset($data['image'])) {
+            $result['image'] = $this->upload('users', $data['image']);
+        }
+
+        return $result;
     }
 }

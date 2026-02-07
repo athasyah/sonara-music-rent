@@ -20,7 +20,6 @@ return new class extends Migration
             $table->enum('status', ['available','reserved', 'rented', 'maintenance', 'damaged']);
             $table->string('image')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

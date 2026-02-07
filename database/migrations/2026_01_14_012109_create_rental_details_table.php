@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('day');
             $table->integer('subtotal');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -37,8 +37,25 @@ class UserRepository extends BaseRepository implements UserInterface
         return $this->show($id)->delete();
     }
 
-     public function findByEmail(string $email)
-     {
+    public function findByEmail(string $email)
+    {
         return $this->model->where('email', $email)->first();
-     }
+    }
+
+    public function customPaginate(int $perPage = 10, int $page = 1, ?array $data): mixed
+    {
+        $query = $this->model->query()
+            ->orderBy('updated_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function noPaginate(array $data): mixed
+    {
+        $query = $this->model->query()
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return $query;
+    }
 }

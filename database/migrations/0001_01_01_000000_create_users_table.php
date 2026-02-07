@@ -21,11 +21,9 @@ return new class extends Migration
             $table->string('password');
             $table->string('reset_password_otp', 6)->nullable();
             $table->timestamp('reset_password_expires_at')->nullable();
-            $table->string('number_phone')->nullable();
             $table->string('image')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
