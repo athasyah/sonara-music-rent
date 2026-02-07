@@ -95,7 +95,7 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserUpdateRequest $request, string $id)
+    public function update(UserRequest $request, string $id)
     {
         $user = $this->userInterface->show($id);
         if (!$user) return Response::NotFound('User tidak ditemukan');
@@ -104,7 +104,7 @@ class UserController extends Controller
         DB::beginTransaction();
 
         try {
-            $map = $this->userService->updateUser($validate);
+            $map = $this->userService->editUser($validate);
             $update = $this->userInterface->update($id, $map);
 
             DB::commit();

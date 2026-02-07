@@ -52,7 +52,17 @@ class UserService
             'password' => bcrypt('staffpassword'),
             'email_otp' => $data['email_otp'] ?? null,
             'otp_expires_at' => $data['otp_expires_at'] ?? null,
-            'email_verified_at' => '2026-01-26',
+            'email_verified_at' => '2001-01-01 01:01:01',
+        ];
+
+        return $result;
+    }
+
+    public function editUser(array $data)
+    {
+        $result = [
+            'name' => $data['name'],
+            'email' => $data['email'],
         ];
 
         return $result;
