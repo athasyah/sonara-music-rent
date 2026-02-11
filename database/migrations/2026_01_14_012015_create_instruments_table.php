@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('instruments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('category_id')->nullable()->constrained();
+            $table->foreignUuid('brand_id')->nullable()->constrained('categories');
             $table->string('name');
             $table->string('brand')->nullable();
             $table->integer('price_per_day');

@@ -214,9 +214,9 @@ class AuthController extends Controller
             return Response::Error('Email tidak terdaftar atau belum terverifikasi', null);
         }
 
-        if ($user->reset_password_expires_at && now()->lt($user->reset_password_expires_at->subMinutes(13))) {
-            return Response::Error('OTP sudah dikirim, silakan tunggu beberapa saat', null);
-        }
+        // if ($user->reset_password_expires_at && now()->lt($user->reset_password_expires_at->subMinutes(13))) {
+        //     return Response::Error('OTP sudah dikirim, silakan tunggu beberapa saat', null);
+        // }
 
         $otp = rand(100000, 999999);
 
@@ -235,11 +235,24 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+        $request->validate(
+            [
+                'email' => 'required|email',
+                'otp' => 'required|string',
+                'password' => 'required|string|min:6|confirmed',
+            ],
+            [
+                'email.required' => 'Email wajib diisi',
+                'email.email' => 'Format email tidak valid',
+
+                'otp.required' => 'Kode OTP wajib diisi',
+                'otp.string' => 'Kode OTP tidak valid',
+
+                'password.required' => 'Password wajib diisi',
+                'password.min' => 'Password minimal 6 karakter',
+                'password.confirmed' => 'Konfirmasi password tidak sama',
+            ]
+        );
 
         $user = $this->userInterface->findByEmail($request->email);
 

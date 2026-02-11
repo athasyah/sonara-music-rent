@@ -21,6 +21,10 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $casts = [
+        'reset_password_expires_at' => 'datetime',
+    ];
+
     protected $fillable = [
         'name',
         'email',

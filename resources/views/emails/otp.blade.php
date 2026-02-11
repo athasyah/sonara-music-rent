@@ -6,7 +6,7 @@
     <title>Verifikasi Email</title>
 </head>
 
-<body style="margin:0; padding:0; background:#f1f5f9; font-family:Arial, Helvetica, sans-serif;">
+<body style="margin:0; padding:0; background:#f5f5f4; font-family:Arial, Helvetica, sans-serif;">
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td align="center" style="padding:50px 15px;">
@@ -15,11 +15,11 @@
 
                     <!-- Header -->
                     <tr>
-                        <td style="background:#2563eb; padding:24px; text-align:center; border-radius:12px 12px 0 0;">
+                        <td style="background:#A47551; padding:24px; text-align:center; border-radius:12px 12px 0 0;">
                             <h1 style="margin:0; color:#ffffff; font-size:24px;">
                                 Sonara Music Rent
                             </h1>
-                            <p style="margin:6px 0 0; color:#dbeafe; font-size:14px;">
+                            <p style="margin:6px 0 0; color:#f3e7dc; font-size:14px;">
                                 Verifikasi Email
                             </p>
                         </td>
@@ -45,9 +45,10 @@
                                     font-size:28px;
                                     font-weight:700;
                                     letter-spacing:6px;
-                                    color:#1e3a8a;
-                                    background:#e0e7ff;
+                                    color:#6b4226;
+                                    background:#f3e7dc;
                                     border-radius:8px;
+                                    border:1px solid #d6bfa7;
                                 ">
                                     {{ $otp }}
                                 </span>
@@ -61,7 +62,7 @@
                                 Demi keamanan akun Anda, jangan bagikan kode ini kepada siapa pun.
                             </p>
                             <p style="color:#6b7280; font-size:14px;">
-                                Abaikan jika anda tidak merasa mendaftar
+                                Abaikan jika Anda tidak merasa mendaftar
                             </p>
                         </td>
                     </tr>
