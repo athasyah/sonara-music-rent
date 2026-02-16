@@ -44,7 +44,7 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
-            ->with(['category']);
+            ->with(['category', 'brandCategory']);
 
         if (!empty($data['category'])) {
             $query->whereHas('category', function ($q) use ($data) {
@@ -71,7 +71,7 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
     {
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc')
-            ->with(['category'])
+            ->with(['category', 'brand'])
             ->get();
 
         if (!empty($data['category'])) {

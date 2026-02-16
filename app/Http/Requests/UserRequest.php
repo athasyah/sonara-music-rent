@@ -3,10 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Helpers\Response;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -25,19 +27,15 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('user');
+
         return [
             'name' => 'required|string',
             'email' => [
                 'required',
                 'email',
                 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/',
-                function ($attribute, $value, $fail) {
-                    $user = \App\Models\User::where('email', $value)->first();
-
-                    if ($user && $user->email_verified_at !== null) {
-                        $fail('Email sudah terdaftar.');
-                    }
-                }
+                Rule::unique('users', 'email')->ignore($id),
             ],
         ];
     }

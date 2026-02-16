@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\Rule;
 
 class InstrumentRequest extends FormRequest
 {
@@ -26,9 +27,15 @@ class InstrumentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => [
+                'required',
+                Rule::exists('categories', 'id')->where('type', 'instrument'),
+            ],
+            'brand_id' => [
+                'required',
+                Rule::exists('categories', 'id')->where('type', 'brand'),
+            ],
             'name' => 'required|string|max:255',
-            'brand' => 'nullable|string',
             'price_per_day' => 'required|integer',
             'status' => 'required|in:available,rented,maintenance,damaged',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5048',
@@ -38,27 +45,28 @@ class InstrumentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'category_id.required' => 'Kategori wajib dipilih.',
-            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'category_id.required' => 'Kategori instrumen wajib dipilih.',
+            'category_id.exists' => 'Kategori yang dipilih tidak valid atau bukan tipe instrumen.',
 
-            'name.required' => 'Nama produk wajib diisi.',
-            'name.string' => 'Nama produk harus berupa teks.',
-            'name.max' => 'Nama produk maksimal 255 karakter.',
+            'brand_id.required' => 'Brand wajib dipilih.',
+            'brand_id.exists' => 'Brand yang dipilih tidak valid atau bukan tipe brand.',
 
-            'brand.string' => 'Brand harus berupa teks.',
+            'name.required' => 'Nama instrumen wajib diisi.',
+            'name.string' => 'Nama instrumen harus berupa teks.',
+            'name.max' => 'Nama instrumen maksimal 255 karakter.',
 
-            'price_per_day.required' => 'Harga per hari wajib diisi.',
-            'price_per_day.integer' => 'Harga per hari harus berupa angka.',
+            'price_per_day.required' => 'Harga sewa per hari wajib diisi.',
+            'price_per_day.integer' => 'Harga sewa per hari harus berupa angka.',
 
-            'status.required' => 'Status wajib dipilih.',
+            'status.required' => 'Status instrumen wajib dipilih.',
             'status.in' => 'Status harus salah satu dari: available, rented, maintenance, atau damaged.',
 
             'image.image' => 'File yang diunggah harus berupa gambar.',
             'image.mimes' => 'Format gambar harus jpeg, png, jpg, atau webp.',
             'image.max' => 'Ukuran gambar maksimal 5 MB.',
-
         ];
     }
+
 
     protected function failedValidation(Validator $validator): JsonResponse
     {

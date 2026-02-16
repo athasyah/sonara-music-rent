@@ -23,7 +23,7 @@ class ActivityLogController extends Controller
     {
         $per_page = $request->per_page ?? 8;
         $page = $request->page ?? 1;
-        $payload = [];
+        $payload = $request->only(['search']);
         try {
             $data = $this->logInterface->customPaginate($per_page, $page, $payload);
             $resource = ActivityLogResource::collection($data);

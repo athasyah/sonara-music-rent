@@ -10,6 +10,9 @@ class Category extends Model
     use HasUuids;
     protected $guarded = [];
 
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     public function instruments()
     {
         return $this->hasMany(Instrument::class);

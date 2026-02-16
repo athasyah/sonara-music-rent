@@ -21,6 +21,7 @@ class ActivityLogResource extends JsonResource
             'action' => $this->action,
             'module' => $this->module,
             'description' => $this->description,
+            'role' => $this->user?->getRoleNames()->first(),
         ];
     }
 }

@@ -42,11 +42,17 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogInterfa
 
     public function customPaginate(int $perPage = 10, int $page = 1, ?array $data): mixed
     {
-        return $this->model->query()
+        $query = $this->model->query()
             ->with(['user'])
-            ->orderBy('updated_at', 'desc')
-            ->with(['user'])
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->orderBy('updated_at', 'desc');
+
+        if (!empty($data['search'])) {
+            $query->where(function ($q) use ($data) {
+                $q->where('description', 'like', '%' . $data['search'] . '%');
+            });
+        }
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function noPaginate(array $data): mixed

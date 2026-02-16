@@ -17,9 +17,9 @@ class InstrumentResource extends JsonResource
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
-            'category_name' => $this->category->name,
+            'category_name' => $this->category?->name,
+            'brand_name' => $this->brandCategory?->name,
             'name' => $this->name,
-            'brand' => $this->brand,
             'price_per_day' => $this->price_per_day,
             'status' => $this->status,
             'image' => $this->image,

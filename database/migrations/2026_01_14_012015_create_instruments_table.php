@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignUuid('category_id')->nullable()->constrained();
             $table->foreignUuid('brand_id')->nullable()->constrained('categories');
             $table->string('name');
-            $table->string('brand')->nullable();
             $table->integer('price_per_day');
             $table->enum('status', ['available','reserved', 'rented', 'maintenance', 'damaged']);
             $table->string('image')->nullable();

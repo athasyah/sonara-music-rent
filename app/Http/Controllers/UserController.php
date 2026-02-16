@@ -28,7 +28,9 @@ class UserController extends Controller
     {
         $per_page = $request->per_page ?? 8;
         $page = $request->page ?? 1;
-        $payload = $request->only(['role']);
+
+        $payload = $request->only(['role', 'search']);
+
         try {
             $data = $this->userInterface->customPaginate($per_page, $page, $payload);
             $resource = UserResource::collection($data);
@@ -39,6 +41,7 @@ class UserController extends Controller
             return Response::Error('Gagal menampilkan data User', $th->getMessage());
         }
     }
+
 
     /**
      * Show the form for creating a new resource.

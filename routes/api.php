@@ -30,8 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware(['role:' . RoleEnum::ADMIN->value])->group(function () {
 
         //Route User
-        Route::post('user/{id}', [UserController::class, 'update']);
-        Route::resource('user', UserController::class)->except('update');
+        // Route::post('user/{id}', [UserController::class, 'update']);
+        Route::resource('user', UserController::class);
 
         //route Kategori
         Route::get('category/no-paginate', [CategoryController::class, 'noPaginate'])->name('category-no-paginate');

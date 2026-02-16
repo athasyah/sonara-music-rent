@@ -14,4 +14,9 @@ class Instrument extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function brandCategory()
+    {
+        return $this->belongsTo(Category::class, 'brand_id');
+    }
 }

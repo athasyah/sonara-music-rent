@@ -11,8 +11,8 @@ class InstrumentService
     {
         $result = [
             'category_id' => $data['category_id'],
+            'brand_id' => $data['brand_id'],
             'name' => $data['name'],
-            'brand' => $data['brand'],
             'price_per_day' => $data['price_per_day'],
             'status' => $data['status'],
         ];

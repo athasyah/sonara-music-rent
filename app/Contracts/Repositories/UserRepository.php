@@ -47,6 +47,16 @@ class UserRepository extends BaseRepository implements UserInterface
         $query = $this->model->query()
             ->orderBy('updated_at', 'desc');
 
+        if (!empty($data['role'])) {
+            $query->role($data['role']);
+        }
+
+        if (!empty($data['search'])) {
+            $query->where(function ($q) use ($data) {
+                $q->where('name', 'like', '%' . $data['search'] . '%');
+            });
+        }
+
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
