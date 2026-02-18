@@ -63,6 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //Endpoint Role Customer
     Route::middleware(['role:' . RoleEnum::CUSTOMER->value . '|' . RoleEnum::ADMIN->value])->group(function () {
 
+        //Route Instrument
+        Route::get('instrument/no-paginate', [InstrumentController::class, 'noPaginate'])->name('instrument-no-paginate');
+        Route::get('instrument', [InstrumentController::class, 'index']);
+
         //Route User
         Route::post('user/{id}', [UserController::class, 'update']);
 

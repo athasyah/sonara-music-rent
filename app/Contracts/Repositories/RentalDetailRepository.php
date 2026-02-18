@@ -3,6 +3,7 @@
 namespace App\Contracts\Repositories;
 
 use App\Contracts\Interfaces\RentalDetailInterface;
+use App\Enums\StatusEnum;
 use App\Models\RentalDetail;
 
 class RentalDetailRepository extends BaseRepository implements RentalDetailInterface
@@ -67,6 +68,22 @@ class RentalDetailRepository extends BaseRepository implements RentalDetailInter
     {
         return $this->model->where('rental_id', $rentalId)
             ->where('instrument_id', $instrumentId)
+            ->exists();
+    }
+
+    public function hasDateConflict(int $instrumentId, $rentDate, $returnDate): bool
+    {
+        return RentalDetail::where('instrument_id', $instrumentId)
+            ->whereHas('rental', function ($query) use ($rentDate, $returnDate) {
+                $query->whereIn('status', [
+                    StatusEnum::RESERVED->value,
+                    StatusEnum::APPROVED->value,
+                    StatusEnum::ONGOING->value,
+                ])
+                    ->where('rent_date', '<=', $returnDate)
+                    ->where('return_date', '>=', $rentDate);
+            })
+            ->lockForUpdate()
             ->exists();
     }
 }

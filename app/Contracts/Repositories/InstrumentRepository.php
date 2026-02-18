@@ -64,6 +64,33 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
             $query->where('status', $data['status']);
         }
 
+        if (!empty($data['search'])) {
+            $query->where(function ($q) use ($data) {
+                $q->where('name', 'like', '%' . $data['search'] . '%');
+            });
+        }
+
+        if (!empty($data['rent_date']) && !empty($data['return_date'])) {
+
+            $rentDate = $data['rent_date'];
+            $returnDate = $data['return_date'];
+
+            $query->whereDoesntHave('rentalDetails', function ($q) use ($rentDate, $returnDate) {
+                $q->whereHas('rental', function ($r) {
+                    $r->whereIn('status', ['reserved', 'approved', 'ongoing']);
+                })
+                    ->where(function ($date) use ($rentDate, $returnDate) {
+                        $date->whereBetween('rent_date', [$rentDate, $returnDate])
+                            ->orWhereBetween('return_date', [$rentDate, $returnDate])
+                            ->orWhere(function ($inner) use ($rentDate, $returnDate) {
+                                $inner->where('rent_date', '<=', $rentDate)
+                                    ->where('return_date', '>=', $returnDate);
+                            });
+                    });
+            });
+        }
+
+
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -96,6 +123,38 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
             $query->where('brand', $data['brand']);
         }
 
+        if (!empty($data['search'])) {
+            $query->where(function ($q) use ($data) {
+                $q->where('name', 'like', '%' . $data['search'] . '%');
+            });
+        }
+
+        if (!empty($data['rent_date']) && !empty($data['return_date'])) {
+
+            $rentDate = $data['rent_date'];
+            $returnDate = $data['return_date'];
+
+            $query->whereDoesntHave('rentalDetails', function ($q) use ($rentDate, $returnDate) {
+                $q->whereHas('rental', function ($r) {
+                    $r->whereIn('status', ['reserved', 'approved', 'ongoing']);
+                })
+                    ->where(function ($date) use ($rentDate, $returnDate) {
+                        $date->whereBetween('rent_date', [$rentDate, $returnDate])
+                            ->orWhereBetween('return_date', [$rentDate, $returnDate])
+                            ->orWhere(function ($inner) use ($rentDate, $returnDate) {
+                                $inner->where('rent_date', '<=', $rentDate)
+                                    ->where('return_date', '>=', $returnDate);
+                            });
+                    });
+            });
+        }
+
+
         return $query;
+    }
+
+    public function updateStatus($id, $status)
+    {
+        return $this->model->where('id', $id)->update(['status' => $status]);
     }
 }

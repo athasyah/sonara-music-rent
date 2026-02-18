@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class InstrumentResource extends JsonResource
 {
@@ -22,7 +23,11 @@ class InstrumentResource extends JsonResource
             'name' => $this->name,
             'price_per_day' => $this->price_per_day,
             'status' => $this->status,
-            'image' => $this->image,
+            'image' => $this->image
+                ? url(Storage::url($this->image))
+                : null,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

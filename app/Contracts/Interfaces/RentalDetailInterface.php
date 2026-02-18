@@ -9,4 +9,6 @@ interface RentalDetailInterface extends BaseInterface
     public function deleteByRentalId(string $rentalId);
 
     public function instrumentExistsInRental(string $rentalId, string $instrumentId);
+    public function hasDateConflict(int $instrumentId, $rentDate, $returnDate): bool;
+
 }

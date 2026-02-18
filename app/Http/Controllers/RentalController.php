@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Interfaces\ActivityLogInterface;
 use App\Contracts\Interfaces\GuaranteeInterface;
+use App\Contracts\Interfaces\InstrumentInterface;
 use App\Contracts\Interfaces\PenaltyInterface;
 use App\Contracts\Interfaces\RentalDetailInterface;
 use App\Contracts\Interfaces\RentalInterface;
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\DB;
 
 class RentalController extends Controller
 {
-    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService, $logService, $logInterface, $penaltyService, $penaltyInterface;
+    private $rentalInterface, $rentalService, $rentDetailInterface, $guaranteeInterface, $guaranteeService, $logService, $logInterface, $penaltyService, $penaltyInterface, $instrumentInterface;
     public function __construct(
         RentalInterface $rentalInterface,
         RentalService $rentalService,
@@ -36,7 +37,8 @@ class RentalController extends Controller
         ActivityLogService $logService,
         ActivityLogInterface $logInterface,
         PenaltyService $penaltyService,
-        PenaltyInterface $penaltyInterface
+        PenaltyInterface $penaltyInterface,
+        InstrumentInterface $instrumentInterface
     ) {
         $this->rentalInterface = $rentalInterface;
         $this->rentalService = $rentalService;
@@ -47,6 +49,7 @@ class RentalController extends Controller
         $this->logInterface = $logInterface;
         $this->penaltyInterface = $penaltyInterface;
         $this->penaltyService = $penaltyService;
+        $this->instrumentInterface = $instrumentInterface;
     }
     /**
      * Display a listing of the resource.
@@ -95,6 +98,24 @@ class RentalController extends Controller
             );
             $totalPrice = collect($details)->sum('subtotal');
 
+            foreach ($details as $detail) {
+
+                $conflict = $this->rentDetailInterface
+                    ->hasDateConflict(
+                        $detail['instrument_id'],
+                        $request->rent_date,
+                        $request->return_date
+                    );
+
+                if ($conflict) {
+                    DB::rollBack();
+                    return Response::Error(
+                        'Instrument sudah dibooking pada tanggal tersebut',
+                        null
+                    );
+                }
+            }
+
             $map = $this->rentalService->rentalStore($validate, $totalPrice);
             $rental = $this->rentalInterface->store($map);
 
@@ -111,7 +132,7 @@ class RentalController extends Controller
             $log = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::RENTAL->value, 'Memnambah data Rental');
             $this->logInterface->store($log);
 
-            $log1 = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::GUARANTEE->value, 'Menghapus data Guarantee');
+            $log1 = $this->logService->logActivity(ActionEnum::CREATE->value, ModuleEnum::GUARANTEE->value, 'Membuat data Guarantee');
             $this->logInterface->store($log1);
 
             DB::commit();
@@ -165,7 +186,6 @@ class RentalController extends Controller
 
         DB::beginTransaction();
         try {
-            // hitung ulang durasi (SAMA seperti store)
             $totalDays = $this->rentalService->calculateRentalDays(
                 $validate['rent_date'],
                 $validate['return_date']

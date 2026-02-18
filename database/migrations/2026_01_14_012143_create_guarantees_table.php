@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->nullable()->constrained();
             $table->string('type');
             $table->string('note')->nullable();
-            $table->enum('status', ['held', 'returned']);
+            $table->enum('status', ['pending','held', 'returned']);
             $table->timestamps();
         });
     }

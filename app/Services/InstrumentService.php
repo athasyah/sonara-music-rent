@@ -19,6 +19,7 @@ class InstrumentService
 
             if (isset($data['image'])) {
             $result['image'] = $this->upload('instruments', $data['image']);
+            
         }
 
         return $result;
