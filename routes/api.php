@@ -3,6 +3,7 @@
 use App\Enums\RoleEnum;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InstrumentConditionController;
 use App\Http\Controllers\InstrumentController;
@@ -78,4 +79,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('review/no-paginate', [ReviewController::class, 'noPaginate'])->name('review-no-paginate');
         Route::resource('review', ReviewController::class);
     });
+
+    Route::get('/cart/availability', [CartController::class, 'availability']);
 });

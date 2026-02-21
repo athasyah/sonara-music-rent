@@ -71,21 +71,20 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
         }
 
         if (!empty($data['rent_date']) && !empty($data['return_date'])) {
-
             $rentDate = $data['rent_date'];
             $returnDate = $data['return_date'];
 
-            $query->whereDoesntHave('rentalDetails', function ($q) use ($rentDate, $returnDate) {
-                $q->whereHas('rental', function ($r) {
-                    $r->whereIn('status', ['reserved', 'approved', 'ongoing']);
-                })
-                    ->where(function ($date) use ($rentDate, $returnDate) {
-                        $date->whereBetween('rent_date', [$rentDate, $returnDate])
-                            ->orWhereBetween('return_date', [$rentDate, $returnDate])
-                            ->orWhere(function ($inner) use ($rentDate, $returnDate) {
-                                $inner->where('rent_date', '<=', $rentDate)
-                                    ->where('return_date', '>=', $returnDate);
-                            });
+            $query->whereNotExists(function ($subQuery) use ($rentDate, $returnDate) {
+                $subQuery->select('rental_details.id')
+                    ->from('rental_details')
+                    ->whereColumn('instruments.id', 'rental_details.instrument_id')
+                    ->whereExists(function ($rentalSub) use ($rentDate, $returnDate) {
+                        $rentalSub->select('rentals.id')
+                            ->from('rentals')
+                            ->whereColumn('rental_details.rental_id', 'rentals.id')
+                            ->whereIn('rentals.status', ['reserved', 'approved', 'ongoing'])
+                            ->where('rentals.rent_date', '<=', $returnDate)
+                            ->where('rentals.return_date', '>=', $rentDate);
                     });
             });
         }
@@ -130,25 +129,23 @@ class InstrumentRepository extends BaseRepository implements InstrumentInterface
         }
 
         if (!empty($data['rent_date']) && !empty($data['return_date'])) {
-
             $rentDate = $data['rent_date'];
             $returnDate = $data['return_date'];
 
-            $query->whereDoesntHave('rentalDetails', function ($q) use ($rentDate, $returnDate) {
-                $q->whereHas('rental', function ($r) {
-                    $r->whereIn('status', ['reserved', 'approved', 'ongoing']);
-                })
-                    ->where(function ($date) use ($rentDate, $returnDate) {
-                        $date->whereBetween('rent_date', [$rentDate, $returnDate])
-                            ->orWhereBetween('return_date', [$rentDate, $returnDate])
-                            ->orWhere(function ($inner) use ($rentDate, $returnDate) {
-                                $inner->where('rent_date', '<=', $rentDate)
-                                    ->where('return_date', '>=', $returnDate);
-                            });
+            $query->whereNotExists(function ($subQuery) use ($rentDate, $returnDate) {
+                $subQuery->select('rental_details.id')
+                    ->from('rental_details')
+                    ->whereColumn('instruments.id', 'rental_details.instrument_id')
+                    ->whereExists(function ($rentalSub) use ($rentDate, $returnDate) {
+                        $rentalSub->select('rentals.id')
+                            ->from('rentals')
+                            ->whereColumn('rental_details.rental_id', 'rentals.id')
+                            ->whereIn('rentals.status', ['reserved', 'approved', 'ongoing'])
+                            ->where('rentals.rent_date', '<=', $returnDate)
+                            ->where('rentals.return_date', '>=', $rentDate);
                     });
             });
         }
-
 
         return $query;
     }

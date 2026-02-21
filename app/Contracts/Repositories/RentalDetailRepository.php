@@ -71,9 +71,9 @@ class RentalDetailRepository extends BaseRepository implements RentalDetailInter
             ->exists();
     }
 
-    public function hasDateConflict(int $instrumentId, $rentDate, $returnDate): bool
+    public function hasDateConflict(string $instrumentId, $rentDate, $returnDate): bool
     {
-        return RentalDetail::where('instrument_id', $instrumentId)
+        return $this->model->where('instrument_id', $instrumentId)
             ->whereHas('rental', function ($query) use ($rentDate, $returnDate) {
                 $query->whereIn('status', [
                     StatusEnum::RESERVED->value,
@@ -85,5 +85,20 @@ class RentalDetailRepository extends BaseRepository implements RentalDetailInter
             })
             ->lockForUpdate()
             ->exists();
+    }
+
+    public function getOverlappingByInstrumentIds(array $instrumentIds)
+    {
+        return $this->model->query()
+            ->with(['rental', 'instrument'])
+            ->whereIn('instrument_id', $instrumentIds)
+            ->whereHas('rental', function ($q) {
+                $q->whereIn('status', [
+                    'reserved',
+                    'approved',
+                    'ongoing'
+                ]);
+            })
+            ->get();
     }
 }

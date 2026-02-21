@@ -15,6 +15,7 @@ class InstrumentService
             'name' => $data['name'],
             'price_per_day' => $data['price_per_day'],
             'status' => $data['status'],
+            'description' => $data['description'],
         ];
 
             if (isset($data['image'])) {

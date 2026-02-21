@@ -19,4 +19,9 @@ class Instrument extends Model
     {
         return $this->belongsTo(Category::class, 'brand_id');
     }
+
+    public function rentalDetails()
+    {
+        return $this->hasMany(RentalDetail::class);
+    }
 }

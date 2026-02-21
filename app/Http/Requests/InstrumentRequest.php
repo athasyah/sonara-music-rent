@@ -39,6 +39,7 @@ class InstrumentRequest extends FormRequest
             'price_per_day' => 'required|integer',
             'status' => 'required|in:available,rented,maintenance,damaged',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5048',
+            'description' => 'nullable|string',
         ];
     }
 
